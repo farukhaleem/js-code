@@ -1,0 +1,33 @@
+name: App Hello
+
+on:
+  push:
+    branches: [ master ]
+
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+      
+    - name: Installing Node
+      uses: actions/setup-node@v2-beta
+      with:
+        node-version: 12  
+  
+    - name: Installing surge
+      run: npm install --global surge
+    
+    - name: deploying using surge
+      run: surge ./ bootcamp2020sample.surge.sh --token ${{ secrets.SURGE_TOKEN }}
+
+
+    - name: Build the site in the jekyll/builder container
+      run: |
+        docker run \
+        -v ${{ github.workspace }}:/srv/jekyll -v ${{ github.workspace }}/_site:/srv/jekyll/_site \
+        jekyll/builder:latest /bin/bash -c "chmod 777 /srv/jekyll && jekyll build --future"
+        
